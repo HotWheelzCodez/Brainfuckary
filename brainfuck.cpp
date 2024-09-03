@@ -17,6 +17,14 @@ std::pair<std::string, std::string> run_program(std::vector<uint8_t>& cells, con
     {
       const char& command = lines[i][j];
 
+      if (command == '#')
+      {
+        if (i == lines.size()-1)
+          return output;
+
+        break;
+      }
+
       if (skip) 
       {
         if (command == ']')
