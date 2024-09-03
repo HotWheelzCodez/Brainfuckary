@@ -6,8 +6,8 @@
 
 std::pair<std::string, std::string> run_program(std::vector<uint8_t>& cells, const std::vector<std::string>& lines) noexcept
 {
-  std::pair<std::string, std::string> output;
-  std::vector<std::pair<int, int>> loop_positions; 
+  std::pair<std::string, std::string> output; // Used to store the error (if there is one) and the output of the program
+  std::vector<std::pair<int, int>> loop_positions; // Stores the position of the '[' in the file (i.e row, col)
   int current_cell = 0;
   bool skip = false;
 
@@ -17,7 +17,7 @@ std::pair<std::string, std::string> run_program(std::vector<uint8_t>& cells, con
     {
       const char& command = lines[i][j];
 
-      if (command == '#')
+      if (command == '#') // Check for comment
       {
         if (i == lines.size()-1)
           return output;
@@ -25,7 +25,7 @@ std::pair<std::string, std::string> run_program(std::vector<uint8_t>& cells, con
         break;
       }
 
-      if (skip) 
+      if (skip) // If we have broke the inner most for loop
       {
         if (command == ']')
         {
@@ -37,64 +37,65 @@ std::pair<std::string, std::string> run_program(std::vector<uint8_t>& cells, con
 
       switch (command)
       {
-        case '>':
+        case '>': // Incrementing cell pointer
           current_cell++;
           if (current_cell > cells.size()-1)
           {
-            output.first = "POINTER OUT OF BOUNDS";
+            output.first = "BRAINFUCK-ERROR: Cell pointer out of bounds, too high! (Overflow)";
             return output;
           }
           break;
-        case '<':
+        case '<': // Decrementing cell pointer
           current_cell--;
           if (current_cell < 0)
           {
-            output.first = "POINTER OUT OF BOUNDS";
+            output.first = "BRAINFUCK-ERROR: Cell pointer out of bounds, too low! (Underflow)";
             return output;
           }
           break;
-        case '+':
+        case '+': // Incrementing cell value
           if ((int)cells[current_cell]+1 > 255)
           {
-            output.first = "INCORRECT VALUE";
+            output.first = "BRAINFUCK-ERROR: Cell value is too large! (Overflow)";
             return output;
           }
 
           cells[current_cell]++;
           break;
-        case '-':
+        case '-': // Decrementing cell value
           if ((int)cells[current_cell]-1 < 0)
           {
-            output.first = "INCORRECT VALUE";
+            output.first = "BRAINFUCK-ERROR: Cell value is too low! (Underflow)";
             return output;
           }
 
           cells[current_cell]--;
           break;
-        case '.':
-          if (lines[i][j-1] == '\\')
+        case '.': // Printing cell value
+          if (lines[i][j-1] == '\\') // Checking format options
             output.first += std::to_string((int)cells[current_cell]);
           else
             output.second += (char)cells[current_cell];
           break;
-        case ',':
+        case ',': // Getting input
         {
           std::string input;
           std::cin >> input;
   
           int value;
+          // Ensure it is a valid unsigned 8 bit integer
           try
           {
             value = std::stoi(input);
 
             if (value < 0)
             {
-              output.first = "INCORRECT VALUE";
+              output.first = "BRAINFUCK-ERROR: Input can not be lower than 0! (Underflow)";
               return output;
             }
             if (value > 255)
             {
-              output.first = "INCORRECT VALUE";
+              output.first = "BRAINFUCK-ERROR: Input can not be greater than 255! (Overflow)";
               return output;
             }
 
@@ -102,13 +103,13 @@ std::pair<std::string, std::string> run_program(std::vector<uint8_t>& cells, con
           }
           catch (const std::exception& error)
           {
-            output.first = "INCORRECT VALUE";
+            output.first = "BRAINFUCK-ERROR: Input must be a valid unsigned 8 bit integer (0-255)! (Unknown value)";
             return output;
           }
 
           break;
         }
-        case '[':
+        case '[': // Begining for loop
           if (!cells[current_cell])
             skip = true;
 
@@ -117,12 +118,12 @@ std::pair<std::string, std::string> run_program(std::vector<uint8_t>& cells, con
           else if (loop_positions[loop_positions.size()-1].first != i || loop_positions[loop_positions.size()-1].second != j)
             loop_positions.push_back({ i, j });
           break; 
-        case ']':
+        case ']': // Ending for loop
           if (cells[current_cell])
           {
             if (loop_positions.empty())
             {
-              output.first = "SYNTAX ERROR";
+              output.first = "BRAINFUCK-ERROR: No matching brackets found! (Syntax error)";
               return output;
             }
             
@@ -138,7 +139,7 @@ std::pair<std::string, std::string> run_program(std::vector<uint8_t>& cells, con
   }
 
   if (skip)
-    output.first = "SYNTAX ERROR";
+    output.first = "BRAINFUCK-ERROR: No matching brackets found! (Syntax error)";
 
   return output;
 }
@@ -147,7 +148,7 @@ int main(int argc, char** argv)
 {
   if (argc == 1)
   {
-    std::cerr << "No file provided! Provided a single '.bf' file!\n";
+    std::cerr << "BRAINFUCK-ERROR: No file provided! Provided a single '.bf' file!\n";
     return 1;
   }
 
@@ -156,7 +157,7 @@ int main(int argc, char** argv)
 
   if (file.bad() || !file.is_open())
   {
-    std::cerr << "File does not exist or could not be found/opened!\n";
+    std::cerr << "BRAINFUCK-ERROR: File does not exist or could not be found/opened!\n";
     return 1;
   }
 
@@ -181,7 +182,7 @@ int main(int argc, char** argv)
   }
 
   if (display_message)
-    std::cout << "You have 10 bytes/cells, if you need more then use the --cells flag, example: --cells=100, if you don't want this message use --message-off\n";
+    std::cout << "BRAINFUCK-INFO: You have 10 bytes/cells, if you need more then use the --cells flag, example: --cells=100, if you don't want this message use --message-off\n";
 
   std::vector<std::string> lines;
   std::string line;
