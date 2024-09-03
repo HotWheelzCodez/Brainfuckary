@@ -19,6 +19,12 @@ or
 ./brainfuck file.bf
 ```
 
+# Custom features
+## Formated printing
+My interpreter allows you to specify the format for what you want to print, if you use a backslash before the period (the print charachter) then it will output the numerical value of the cell, else it will output the ascii value of the current cell.
+## Comments
+You can define a comment with "*#*", this will simple skip that line
+
 ## Flags
 There are also a few flag optins for this the two that I have right now are "*--message-off*" which disables the inital display message, and there is "*--cells=100*" (or any number of cells/bytes that you need), however make sure to put the flags after the input file, and to only provide one input file. 
 ```bash
