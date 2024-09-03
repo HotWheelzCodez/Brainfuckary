@@ -1,5 +1,5 @@
 # Brainfuckary
-A basic brainfuck interpreter in C++
+A basic brainfuck interpreter in C++ this was created for a community challange in (codingame.com)[https://www.codingame.com/home], more speficially the (brainfuck)[https://www.codingame.com/training/medium/what-the-brainfuck] challange. I had fun solving this and wanted to turn it into a somewhat usable program so that I could have some fun writting my own brainfuck code.
 
 # Compile
 Use g++ to compile this, this program uses the C++ standard 11
